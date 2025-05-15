@@ -8,7 +8,7 @@ public class LDAClassifier
 {
     public double[] weights;
     public double bias;
-
+    
     public void LoadFromCSV(string filePath)
     {
         var lines = File.ReadAllLines(filePath);

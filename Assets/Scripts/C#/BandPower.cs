@@ -10,23 +10,18 @@ using UnityEngine.UIElements;
 
 public class BandPower : MonoBehaviour
 {
-    /// <summary>
-    /// �ш悲�Ƃ�BandPower�����߂�B
-    /// ���ߕ��͎��g���ш敪�̃p���[�����Z
-    /// int deviceId = int.Parse(deviceInputField.text); // ユーザー入力を取得
-    /// </summary>
+
     [SerializeField] UnicornManager_2 unicornManager;
     const int TimeWidth = 2;//���b�Ɉ��Z�o���邩
     private const int SampleRate = 250;  // 250Hz
     private const int BufferSize = SampleRate * TimeWidth; // 2�b�� = 500�T���v��
     public Queue<float[]> eegBuffer = new Queue<float[]>();
+    [SerializeField] private Bug bug; // Unity Editor でアタッチ
     // チャンネルごとのバンドパワー格納用
     public float[] deltaPower, thetaPower, alphaPower, betaPower;
-    //public float[] deltaPower = new float[8];
-    //public float[] thetaPower = new float[8];
-    //public float[] alphaPower = new float[8];
-    //public float[] betaPower = new float[8];
 
+
+    
 
     //float[8]��8�`�����l�����̂PSample�f�[�^��500��Queue�Ŏ擾�������
     // Start is called before the first frame update
@@ -58,6 +53,10 @@ public class BandPower : MonoBehaviour
 
                 if (eegBuffer.Count >= BufferSize)//500Sample����Queue�𒴂��Ă���Ώ�����
                 {
+                    if (bug != null)
+                    {
+                        bug.GetBufferedData(new Queue<float[]>(eegBuffer)); // コピーして渡す
+                    }
                     eegBuffer.Dequeue(); // �Â��f�[�^���폜
                 }
 
@@ -100,14 +99,13 @@ public class BandPower : MonoBehaviour
                 {
                     Complex[] complexData = channelData[ch].Select(x => new Complex(x, 0)).ToArray();
                     Complex[] spectrum = FFT(complexData);
-                    Debug.Log($"spectrum:{spectrum.Length}");
 
                     deltaPower[ch] = ComputeBandPower(spectrum, 1, 4, SampleRate, BufferSize);
                     thetaPower[ch] = ComputeBandPower(spectrum, 4, 8, SampleRate, BufferSize);
                     alphaPower[ch] = ComputeBandPower(spectrum, 8, 13, SampleRate, BufferSize);
                     betaPower[ch] = ComputeBandPower(spectrum, 13, 30, SampleRate, BufferSize);
 
-                    Debug.Log($"Ch{ch} - Delta: {deltaPower[ch]}dB, Theta: {thetaPower[ch]}dB, Alpha: {alphaPower[ch]}dB, Beta: {betaPower[ch]}dB");
+                    //Debug.Log($"Ch{ch} - Delta: {deltaPower[ch]}dB, Theta: {thetaPower[ch]}dB, Alpha: {alphaPower[ch]}dB, Beta: {betaPower[ch]}dB");
                 }
 
             }
